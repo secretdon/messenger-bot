@@ -3,7 +3,7 @@ module.exports.config = {
 	name: "Rizwan",
   version: "1.0.1",
 	hasPermssion: 0,
-	credits: "Rizwan", 
+	credits: "𝐏𝐫𝐢𝐲𝐚𝐧𝐬𝐡 𝐑𝐚𝐣𝐩𝐮𝐭, 
 	description: "hihihihi",
 	commandCategory: "no prefix",
 	usages: "rizu",
@@ -19,7 +19,7 @@ module.exports.handleEvent = function({ api, event, client, __GLOBAL })
     }
 
 	var { threadID, messageID } = event;
-	if (event.body.indexOf("@Rizwan Ullah")==0 || event.body.indexOf("@𝐓ɽ͜͡𝐮𝐬ʈ 𝐌̽𝐞 𝐁𝐚͜͡𝐛ɣ̈̈›› 𝐈 𝐖ɪ̽ɭɭ ဗီူံ ๛⃝𓆩𝐁ɽ͜͡𝐞̽ɑ̽𝐤 𝐘ǿ𝐮̽ɾ 𝐇𝐞̽𝐚͜͡𝐫ʈﮩﮩــﮩــــ𓆩  𓆪〘̶𑁍 〘̶𑁍𓆩⃝ 』𓆩๏̬̬̬̬̬̬𓆪†『٭𝐱͜͡⃝ᴆ』†٭❯")==0 || event.body.indexOf("@Prîyánsh Rajpût")==0 || event.body.indexOf("priyansh")==0) {
+	if (event.body.indexOf("@Rizwan Ullah Qureshi")==0 || event.body.indexOf("boss || event.body.indexOf("@rizwan")==0 || event.body.indexOf("rizu")==0) {
 		var msg = {
 				body: "RIZU ✨💖🥀",
 				attachment: fs.createReadStream(__dirname + `/../noprefix/rizu.png`)
