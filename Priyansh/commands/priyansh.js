@@ -21,8 +21,8 @@ module.exports.handleEvent = function({ api, event, client, __GLOBAL })
 	var { threadID, messageID } = event;
 	if (event.body.indexOf("@Rizwan Ullah Qureshi")==0 || event.body.indexOf("boss || event.body.indexOf("@rizwan")==0 || event.body.indexOf("rizu")==0) {
 		var msg = {
-				body: "RIZU ✨💖🥀",
-				attachment: fs.createReadStream(__dirname + `/../noprefix/rizu.png`)
+				body: "RIZU BOSS KO YAAD KIA ✨💖🥀",
+				attachment: fs.createReadStream(__dirname + `/noprefix/rizu.png`)
 			}
 			api.sendMessage(msg, threadID, messageID);
     api.setMessageReaction("💔", event.messageID, (err) => {}, true)
