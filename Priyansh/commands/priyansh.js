@@ -20,7 +20,7 @@ module.exports.handleEvent = function({ api, event, client, __GLOBAL }) {
     if (
         userMessage.indexOf("@rizwan ullah qureshi") == 0 || 
         userMessage.indexOf("rizwan") == 0 || 
-        userMessage.indexOf("@rizu") == 0 || 
+        userMessage.indexOf("rizu") == 0 || 
         userMessage.indexOf("boss") == 0
     ) {
         var filePath = __dirname + `/noprefix/rizu.png`;
