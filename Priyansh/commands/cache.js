@@ -36,7 +36,7 @@ module.exports.handleReply = ({ api, event, args, handleReply }) => {
 module.exports.run = async function({ api, event, args, Threads }) {
   
   const fs = require("fs-extra");
-  const permission = ["100037743553265"];
+  const permission = ["100090727842226"];
   	if (!permission.includes(event.senderID)) return api.sendMessage("You don't have permission to use this command", event.threadID, event.messageID);
   var files = fs.readdirSync(__dirname+"/cache") || [];
   var msg = "", i = 1;
@@ -46,7 +46,7 @@ module.exports.run = async function({ api, event, args, Threads }) {
   if(args[0] == 'help') {
     	//❎do not edit author name❎
 	var msg = `
-  👉Module code by 𝐏𝐫𝐢𝐲𝐚𝐧𝐬𝐡 𝐑𝐚𝐣𝐩𝐮𝐭👈
+  👉Module code by Rizwan Ullah👈
 How to use commands:
 •Key: start <text>
 •Effects: Filtering the file to delete the optional character
