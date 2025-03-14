@@ -1,8 +1,8 @@
 module.exports.config = {
-	name: "botinfo",
+	name: "info",
 	version: "1.0.1", 
 	hasPermssion: 0,
-	credits: "Cryptic Rizu",
+	credits: "𝐏𝐫𝐢𝐲𝐚𝐧𝐬𝐡 𝐑𝐚𝐣𝐩𝐮𝐭",
 	description: "Admin and Bot info.",
 	commandCategory: "...",
 	cooldowns: 1,
@@ -24,7 +24,7 @@ const time = process.uptime(),
 const moment = require("moment-timezone");
 var juswa = moment.tz("Asia/Rawalpindi").format("『D/MM/YYYY』 【HH:mm:ss】");
 var link =                                     
-["https://ibb.co/Df0MnzYp" , "https://ibb.co/m54G34n2" , "https://ibb.co/KchkQG0W"];
+["https://ibb.co/Df0MnzYp"];
 var callback = () => api.sendMessage({body:` ╾━╤デ╦︻(▀̿Ĺ̯▀̿ ̿) 𝐀𝐃𝐌𝐈𝐍 𝐀𝐍𝐃 𝐁𝐎𝐓 𝐈𝐍𝐅𝐎𝐑𝐌𝐀𝐓𝐈𝐎𝐍 🇮🇳
 
 (⌐▀͡ ̯ʖ▀)︻̷┻̿═━一-
