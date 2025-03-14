@@ -1,5 +1,5 @@
 module.exports.config = {
-	name: "info",
+	name: "botinfo",
 	version: "1.0.1", 
 	hasPermssion: 0,
 	credits: "Cryptic Rizu",
@@ -22,9 +22,9 @@ const time = process.uptime(),
 		minutes = Math.floor((time % (60 * 60)) / 60),
 		seconds = Math.floor(time % 60);
 const moment = require("moment-timezone");
-var juswa = moment.tz("Asia/Dhaka").format("『D/MM/YYYY』 【HH:mm:ss】");
+var juswa = moment.tz("Asia/Rawalpindi").format("『D/MM/YYYY』 【HH:mm:ss】");
 var link =                                     
-["https://i.imghippo.com/files/lJ8376Tkc.jpg"];
+["https://ibb.co/Df0MnzYp" , "https://ibb.co/m54G34n2" , "https://ibb.co/KchkQG0W"];
 var callback = () => api.sendMessage({body:` ╾━╤デ╦︻(▀̿Ĺ̯▀̿ ̿) 𝐀𝐃𝐌𝐈𝐍 𝐀𝐍𝐃 𝐁𝐎𝐓 𝐈𝐍𝐅𝐎𝐑𝐌𝐀𝐓𝐈𝐎𝐍 🇮🇳
 
 (⌐▀͡ ̯ʖ▀)︻̷┻̿═━一-
