@@ -1,44 +1,89 @@
 const axios = require("axios");
+
+// Conversation history store karne ke liye (sirf last 5 messages)
+const conversationHistory = {};
+
 module.exports.config = {
-    name: "ai",
+    name: "babu",
     version: "1.0.0",
     hasPermssion: 0,
     credits: "𝐏𝐫𝐢𝐲𝐚𝐧𝐬𝐡 𝐑𝐚𝐣𝐩𝐮𝐭",
-    description: "BlackBoxAi by Priyansh",
+    description: "Google Cloud AI (Gemini) by Priyansh",
     commandCategory: "ai",
     usages: "[ask]",
     cooldowns: 2,
-    dependecies: {
+    dependencies: {
         "axios": "1.4.0"
     }
 };
 
 module.exports.run = async function ({ api, event, args, Users }) {
+    const { threadID, messageID, senderID } = event;
+    const query = args.join(" "); // User ka input
+    const name = await Users.getNameUser(senderID);
 
-  const { threadID, messageID } = event;
+    if (!query) return api.sendMessage("babu btaao aap ka babu kia help ker sakta aap ki....", threadID, messageID);
 
-  const query = encodeURIComponent(args.join(" "));
+    api.sendMessage("Searching for an answer, please wait...", threadID, messageID);
 
-  var name = await Users.getNameUser(event.senderID);
+    try {
+        api.setMessageReaction("⌛", event.messageID, () => { }, true);
 
-  if (!args[0]) return api.sendMessage("Please type a message...", threadID, messageID );
-  
-  api.sendMessage("Searching for an answer, please wait...", threadID, messageID);
+        // Google Cloud AI (Gemini API) Configuration
+        const geminiApiKey = "AIzaSyBLJasBu3OUFEzFlVI-E1l1O0GXvbk1cxA"; // Apni Gemini API key yahan dalen
+        const geminiApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiApiKey}`;
 
-  try{
+        // Conversation history ko include karein (sirf last 5 messages)
+        if (!conversationHistory[threadID]) {
+            conversationHistory[threadID] = [];
+        }
+        const previousConversation = conversationHistory[threadID];
 
-    api.setMessageReaction("⌛", event.messageID, () => { }, true);
+        // User ka new message add karein (sahi format mein)
+        previousConversation.push({
+            role: "user", // User ka message
+            parts: [{ text: query }]
+        });
 
-    const res = await axios.get(`https://blackboxai-tlh1.onrender.com/api/blackboxai?query=${encodeURIComponent(query)}`);
+        // Sirf last 5 messages rakhein
+        if (previousConversation.length > 5) {
+            previousConversation.shift(); // Sabse purana message remove karein
+        }
 
-    const data = res.data.priyansh;
+        console.log("Sending request to Gemini API with:", previousConversation); // Debugging ke liye
 
-    api.sendMessage(data, event.threadID, event.messageID);
+        const response = await axios.post(geminiApiUrl, {
+            contents: previousConversation
+        }, {
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
 
-    api.setMessageReaction("✅", event.messageID, () => { }, true);
-}
-  catch (error) {
-    console.error('Error fetching package.json:', error);
-  api.sendMessage("An error occurred while fetching data. Please try again later.", event.threadID, event.messageID);
-  }
+        console.log("Received response from Gemini API:", response.data); // Debugging ke liye
+
+        // Check if response is valid
+        if (response.data && response.data.candidates && response.data.candidates.length > 0) {
+            const geminiResponse = response.data.candidates[0].content.parts[0].text; // Gemini se mila jawab
+
+            // Bot ka response bhi history mein add karein (sahi format mein)
+            previousConversation.push({
+                role: "model", // Bot ka response
+                parts: [{ text: geminiResponse }]
+            });
+
+            // Fir se last 5 messages rakhein
+            if (previousConversation.length > 5) {
+                previousConversation.shift(); // Sabse purana message remove karein
+            }
+
+            api.sendMessage(geminiResponse, threadID, messageID); // User ko jawab bhejna
+            api.setMessageReaction("✅", event.messageID, () => { }, true);
+        } else {
+            throw new Error("Invalid response from API");
+        }
+    } catch (error) {
+        console.error('Error fetching response from Gemini:', error.response ? error.response.data : error.message);
+        api.sendMessage(`An error occurred: ${error.message}. Please try again later.`, threadID, messageID);
+    }
 };
