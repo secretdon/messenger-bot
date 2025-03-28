@@ -28,7 +28,7 @@ module.exports.run = async function ({ api, event, args, Users }) {
         api.setMessageReaction("⌛", event.messageID, () => { }, true);
 
         // Gemini API Configuration
-        const geminiApiKey = "YOUR_GEMINI_API_KEY_HERE"; // Apni Gemini API key yahan dalen
+        const geminiApiKey = "AIzaSyBLJasBu3OUFEzFlVI-E1l1O0GXvbk1cxA"; // Apni Gemini API key yahan dalen
         const geminiApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiApiKey}`;
 
         // Ensure conversation history for the thread exists
