@@ -1,68 +1,67 @@
 const axios = require("axios");
 
-// Conversation history store karne ke liye (sirf last 5 messages) const conversationHistory = {}; const botModes = {}; // Bot modes store karne ke liye (normal/roast) const adminUID = "YOUR_ADMIN_UID"; // Yahan apni admin UID daalain
+// Conversation history store karne ke liye (sirf last 5 messages) const conversationHistory = {};
 
-module.exports.config = { name: "babu", version: "1.0.0", hasPermssion: 0, credits: "𝐏𝐫𝐢𝐲𝐚𝐧𝐬𝐡 𝐑𝐚𝐣𝐩𝐮𝐭", description: "Google Cloud AI (Gemini) with Roasting Mode", commandCategory: "ai", usages: "[ask]", cooldowns: 2, dependencies: { "axios": "1.4.0" } };
+module.exports.config = { name: "babu", version: "1.0.0", hasPermssion: 0, credits: "𝐏𝐫𝐢𝐲𝐚𝐧𝐬𝐡 𝐑𝐚𝐣𝐩𝐮𝐭", description: "Google Cloud AI (Gemini) by Priyansh", commandCategory: "ai", usages: "[ask]", cooldowns: 2, dependencies: { "axios": "1.4.0" } };
 
-module.exports.run = async function ({ api, event, args, Users }) { const { threadID, messageID, senderID } = event; const query = args.join(" "); const name = await Users.getNameUser(senderID);
-
-// Bot modes handle karna
-if (query.toLowerCase() === "+diba roast" && senderID === adminUID) {
-    botModes[threadID] = "roast";
-    return api.sendMessage("🔥 Roasting mode activated! Ab bot har jawab roast style me dega.", threadID, messageID);
-}
-if (query.toLowerCase() === "+diba off" && senderID === adminUID) {
-    botModes[threadID] = "off";
-    return api.sendMessage("🛑 Bot off kar diya gaya hai. Ab koi response nahi dega.", threadID, messageID);
-}
-if (query.toLowerCase() === "+diba on" && senderID === adminUID) {
-    botModes[threadID] = "normal";
-    return api.sendMessage("✅ Bot wapas on ho gaya hai! Normal mode me jawab dega.", threadID, messageID);
-}
-
-if (botModes[threadID] === "off") return;
+module.exports.run = async function ({ api, event, args, Users }) { const { threadID, messageID, senderID } = event; const query = args.join(" "); // User ka input const name = await Users.getNameUser(senderID);
 
 if (!query) return api.sendMessage("babu btaao aap ka babu kia help ker sakta aap ki....", threadID, messageID);
+
 api.sendMessage("Searching for an answer, please wait...", threadID, messageID);
 
 try {
     api.setMessageReaction("⌛", event.messageID, () => { }, true);
 
-    const geminiApiKey = "AIzaSyD8AUi70sMMjKS6DP3x07Olku6oT-YgnFY";
+    // Google Cloud AI (Gemini API) Configuration
+    const geminiApiKey = "YOUR_GEMINI_API_KEY_HERE"; // Apni Gemini API key yahan dalen
     const geminiApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiApiKey}`;
 
+    // Conversation history ko include karein (sirf last 5 messages)
     if (!conversationHistory[threadID]) {
         conversationHistory[threadID] = [];
     }
     const previousConversation = conversationHistory[threadID];
 
-    // Agar roasting mode hai to query modify karein
-    let finalQuery = query;
-    if (botModes[threadID] === "roast") {
-        finalQuery = `Tum aik savage roaster ho, mazaak or thoda sarcastic tone use karo. Ye raha user ka input: ${query}`;
-    }
+    // User ka new message add karein (sahi format mein)
+    previousConversation.push({
+        role: "user", // User ka message
+        parts: [{ text: `${query}\n\n(Tum ek mazedar roasting chatbot ho jo user ke har sawal ka mazedar aur thoda sarcastic jawab deta hai. Tumhara maqsad sirf mazak karna hai, na ke kisi ka dil dukhana!)` }]
+    });
 
-    previousConversation.push({ role: "user", parts: [{ text: finalQuery }] });
-
+    // Sirf last 5 messages rakhein
     if (previousConversation.length > 5) {
-        previousConversation.shift();
+        previousConversation.shift(); // Sabse purana message remove karein
     }
 
     console.log("Sending request to Gemini API with:", previousConversation);
 
-    const response = await axios.post(geminiApiUrl, { contents: previousConversation }, { headers: { "Content-Type": "application/json" } });
+    const response = await axios.post(geminiApiUrl, {
+        contents: previousConversation
+    }, {
+        headers: {
+            "Content-Type": "application/json"
+        }
+    });
 
     console.log("Received response from Gemini API:", response.data);
 
+    // Check if response is valid
     if (response.data && response.data.candidates && response.data.candidates.length > 0) {
-        const geminiResponse = response.data.candidates[0].content.parts[0].text;
+        const geminiResponse = response.data.candidates[0].content.parts[0].text; // Gemini se mila jawab
 
-        previousConversation.push({ role: "model", parts: [{ text: geminiResponse }] });
+        // Bot ka response bhi history mein add karein (sahi format mein)
+        previousConversation.push({
+            role: "model", // Bot ka response
+            parts: [{ text: geminiResponse }]
+        });
+
+        // Fir se last 5 messages rakhein
         if (previousConversation.length > 5) {
-            previousConversation.shift();
+            previousConversation.shift(); // Sabse purana message remove karein
         }
 
-        api.sendMessage(geminiResponse, threadID, messageID);
+        api.sendMessage(geminiResponse, threadID, messageID); // User ko jawab bhejna
         api.setMessageReaction("✅", event.messageID, () => { }, true);
     } else {
         throw new Error("Invalid response from API");
