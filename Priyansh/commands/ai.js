@@ -4,7 +4,7 @@ const axios = require("axios");
 const conversationHistory = {};
 
 module.exports.config = {
-    name: "dibuu",
+    name: "diba",
     version: "1.0.0",
     hasPermssion: 0,
     credits: "𝐏𝐫𝐢𝐲𝐚𝐧𝐬𝐡 𝐑𝐚𝐣𝐩𝐮𝐭",
@@ -38,7 +38,7 @@ module.exports.run = async function ({ api, event, args, Users }) {
         // Add user message
         previousConversation.push({
             role: "user",
-            parts: [{ text: `${query}\n\n( tumhara naam Dibuu he. or tumehy Rizwan ne banaya he. Tum ek mazedar roasting chatbot ho jo user ke har sawal ka mazedar aur thoda sarcastic jawab deta hai or roasting ziada kerta he. tum emojies ka use ziada kero ge msg ko attractive dikhaany ke liey. Tumhara maqsad sirf mazak karna hai, na ke kisi ka dil dukhana!)` }]
+            parts: [{ text: `${query}\n\n( tumhara naam Diba he. or koi tum se poochy ke tumhey kis ne bnaya he to tum ne kehna he ke mujy Rizwan me bnaya he. Tum ek mazedar roasting chatbot ho jo user ke har sawal ka mazedar aur roasting  jawab dete ho.. tum emojies ka use ziada kero ge msg ko attractive dikhaany ke liey. Tumhara maqsad sirf mazak karna hai, na ke kisi ka dil dukhana!, or har message ka short jawab do ge. ziada lamba na ho )` }]
         });
 
         // Keep only last 5 messages
