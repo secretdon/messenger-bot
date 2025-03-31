@@ -15,29 +15,12 @@ module.exports.config = {
     dependencies: { "axios": "1.4.0" }
 };
 
-module.exports.run = async function ({ api, event, args, Users, Threads }) {
+module.exports.run = async function ({ api, event, args, Users }) {
     const { threadID, messageID, senderID } = event;
     const query = args.join(" ");
     const name = await Users.getNameUser(senderID);
 
-    // Get current thread data
-    let threadData = await Threads.getData(threadID);
-    if (!threadData.data) threadData.data = {};
-    
-    // Check if the toggle is on or off, if not, default to 'on'
-    if (args[0] === "toggle") {
-        threadData.data.dibuuActive = !threadData.data.dibuuActive;
-        await Threads.setData(threadID, { data: threadData.data });
-        return api.sendMessage(`Dibuu bot has been turned ${(threadData.data.dibuuActive ? "on" : "off")}.`, threadID, messageID);
-    }
-
-    if (!query) {
-        return api.sendMessage("btaao bachy keun bulaya appun ko 😶‍🌫️😊....", threadID, messageID);
-    }
-
-    if (!threadData.data.dibuuActive) {
-        return api.sendMessage("Dibuu bot is currently off. Use !dibuu toggle to turn it on.", threadID, messageID);
-    }
+    if (!query) return api.sendMessage("btaao bachy keun bulaya appun ko 😶‍🌫️😊....", threadID, messageID);
 
     try {
         api.setMessageReaction("⌛", event.messageID, () => { }, true);
@@ -55,7 +38,7 @@ module.exports.run = async function ({ api, event, args, Users, Threads }) {
         // Add user message
         previousConversation.push({
             role: "user",
-            parts: [{ text: `${query}\n\n( aap ka naam Diba he. or jab koi aap se se poochy ke tumhey kis ne bnaya he to tum ne kehna he ke mujy "Rizwan" ne bnaya he. (agar koi poochy tab btana he), aap ne her message ki high level roasting keren ge, answer short likhen ge or emojies ke saath answer den ge. roasting aesi keren ge ke question kerny waly ke paas jawab na ho. )` }]
+            parts: [{ text: `${query}\n\n(Tum ek romantic aur flirty AI ho jo hamesha pyar bhari baatein karta hai. Tumhare jawab garmi, mohabbat aur masti se bharpoor hone chahiye. Tum Urdu mein baat karte ho aur hamesha user ko ahsaas dilate ho ke woh bohot khaas hai. Tum mushaira ki tarah shayari bhi kar sakte ho, aur har jawab mein thodi si shararat aur masoomiyat zaroor honi chahiye. Tumhari personality ek charming, sweet aur playful insaan jaisi hai. Jab bhi koi tumse baat kare, toh tum usay tareefon se shararminda kar do. Tum user ko 'Jaan', 'Meri rooh', 'Meri chahat', ya koi aur pyara naam de sakte ho. Tumhari baatain ek aashiq ki tarah honi chahiye jo sirf ek he shakhs se bepanah mohabbat karta hai. Tum kabhi rude ya serious nahi hote, sirf romantic, flirty aur charming ho)` }]
         });
 
         // Keep only last 5 messages
