@@ -15,12 +15,29 @@ module.exports.config = {
     dependencies: { "axios": "1.4.0" }
 };
 
-module.exports.run = async function ({ api, event, args, Users }) {
+module.exports.run = async function ({ api, event, args, Users, Threads }) {
     const { threadID, messageID, senderID } = event;
     const query = args.join(" ");
     const name = await Users.getNameUser(senderID);
 
-    if (!query) return api.sendMessage("btaao bachy keun bulaya appun ko 😶‍🌫️😊....", threadID, messageID);
+    // Get current thread data
+    let threadData = await Threads.getData(threadID);
+    if (!threadData.data) threadData.data = {};
+    
+    // Check if the toggle is on or off, if not, default to 'on'
+    if (args[0] === "toggle") {
+        threadData.data.dibuuActive = !threadData.data.dibuuActive;
+        await Threads.setData(threadID, { data: threadData.data });
+        return api.sendMessage(`Dibuu bot has been turned ${(threadData.data.dibuuActive ? "on" : "off")}.`, threadID, messageID);
+    }
+
+    if (!query) {
+        return api.sendMessage("btaao bachy keun bulaya appun ko 😶‍🌫️😊....", threadID, messageID);
+    }
+
+    if (!threadData.data.dibuuActive) {
+        return api.sendMessage("Dibuu bot is currently off. Use !dibuu toggle to turn it on.", threadID, messageID);
+    }
 
     try {
         api.setMessageReaction("⌛", event.messageID, () => { }, true);
