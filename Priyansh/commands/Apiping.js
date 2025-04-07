@@ -16,7 +16,7 @@ module.exports.config = {
 
 // 🔹 Tumhari APIs
 const API_URLS = {
-    "Rizwan":  "https://messenger-bot-k7aj.onrender.com"
+    "Rizwan":  "https://messenger-bot-s9gf.onrender.com"
 };
 
 // 🔹 API Check Function (Ping Only)
