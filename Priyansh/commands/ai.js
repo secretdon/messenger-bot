@@ -41,8 +41,9 @@ module.exports.run = async function ({ api, event, args, Users }) {
     if (!query) return api.sendMessage("btaao bachy keun bulaya appun ko 😶‍🌫️😊....", threadID, messageID);
 
     // MODE CHANGE COMMAND: e.g. ".dibuu roast mode on"
-    if (/^(\w+)\s+mode\s+on$/i.test(query)) {
-        const mode = query.split(" ")[0].toLowerCase();
+    const modeMatch = /^(\w+)\s+mode\s+on$/i.exec(query);
+    if (modeMatch) {
+        const mode = modeMatch[1].toLowerCase();
         if (modePrompts[mode]) {
             const prevMode = threadModes[threadID] || "none";
             threadModes[threadID] = mode;
