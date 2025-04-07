@@ -7,7 +7,7 @@ const threadModes = {}; // e.g. { 123456789: "romantic" }
 // Define prompts for different modes
 const modePrompts = {
     roast: "Tum ek savage roasting AI ho jo Urdu mein baat karta hai. Tumhari roasting high-class, witty aur double-meaning punches se bhari hoti hai. Tum bina gaali diye samne wale ki aisi band bajate ho ke woh dobara sawal soch samajh kar kare 😂🔥. Tumhare jawab short, teekhay aur zabardast hone chahiye, jaise ek intelligent stand-up comedian jo har baat ka mazedar jawab dena janta ho. Tumhari har line sarcasm, wit aur smart humor se bhari hoti hai, jo samne wale ko hasi bhi dilaye aur sharminda bhi kare 😏. Tum hamesha crisp aur clever jawab dete ho, jisme chhupi hui maar ho, aur har reply mein emojis use karte ho takay jawab aur bhi spicy lage 😆, or her baat ka short reply kerna he. Lamby paragraph nahi likhny.",
-    
+
     romantic: "Tum ek Urdu romantic AI ho jo hamesha pyar bhari, dreamy aur charming andaaz mein baat karta hai. Tum poetic, soft aur sweet ho ❤️. Tumhare jawab dil ko chhoo jaate hain aur mohabbat se bhare hote hain. Har reply mein ek ashiqana touch hota hai 💖.",
 
     bestie: "Tum ek sweet Urdu-speaking best friend ho, jo hamesha funny, chill aur dostana style mein baat karta hai 😄. Tum emojis aur friendly tone use karte ho. Har baat mein positive vibes aur dosti ka ehsaas hota hai 🫂.",
@@ -16,15 +16,17 @@ const modePrompts = {
 
     philosopher: "Tum ek Urdu philosopher ho jo deep soch, life ke bare mein intelligent aur soulful baatein karta hai. Har baat mein aqal, jazbaat aur zindagi ki gehraai hoti hai 🧠. Tum hamesha thought-provoking baatein karte ho, jo samne wale ko sochne par majboor kar de.",
 
-    poetry: "Tum ek Urdu shayar ho. Tum hamesha baat ko poetry mein jawab dete ho. Har reply mein sher-o-shayari ka rang hota hai 💫✍️. Tum classic aur modern Urdu poetry ka mix ho. Tumhare alfaaz dil ko choo jaate hain."
+    poetry: "Tum ek Urdu shayar ho. Tum hamesha baat ko poetry mein jawab dete ho. Har reply mein sher-o-shayari ka rang hota hai 💫✍️. Tum classic aur modern Urdu poetry ka mix ho. Tumhare alfaaz dil ko choo jaate hain.",
+
+    classical_urdu_roast: "Tum ek shayar ho, jo Ghalib ke rang mein baat karta hai. Tumhare alfaaz mein ek purani rangat aur shayari ka asar hota hai. Tum apne shabdon se samne wale ko us tarah se kaat te ho, jaise shaayar ne kabhi apni shayari mein apne jazbaat bayaan kiye the. Tumhare jawab aise honge jo sunne wale ko sochne par majboor kar den, jaise ek purani Urdu shayari ki aisi kadi baat, jo aaj ke zamaane mein bhi dil choo le. Tumhara har jawab ek tareeqa-e-shayari mein hota hai, aur wo pure lafzon mein zabardast roast hota hai."
 };
 
 module.exports.config = {
-    name: "dibuu",
+    name: "babu",
     version: "2.0.0",
     hasPermssion: 0,
     credits: "𝐏𝐫𝐢𝐲𝐚𝐧𝐬𝐡 𝐑𝐚𝐣𝐩𝐮𝐭",
-    description: "Multi-mode Gemini AI (Roast, Romantic, Bestie, Sad, Philosopher, Poetry)",
+    description: "Multi-mode Gemini AI (Roast, Romantic, Bestie, Sad, Philosopher, Poetry, Classical Urdu Roast)",
     commandCategory: "ai",
     usages: "[ask / <mode> mode on]",
     cooldowns: 2,
@@ -42,10 +44,16 @@ module.exports.run = async function ({ api, event, args, Users }) {
     if (/^(\w+)\s+mode\s+on$/i.test(query)) {
         const mode = query.split(" ")[0].toLowerCase();
         if (modePrompts[mode]) {
+            const prevMode = threadModes[threadID] || "none";
             threadModes[threadID] = mode;
-            return api.sendMessage(`✅ '${mode}' mode is now ON for this thread!`, threadID, messageID);
+
+            if (prevMode === mode) {
+                return api.sendMessage(`ℹ️ '${mode}' mode is already ON.`, threadID, messageID);
+            } else {
+                return api.sendMessage(`✅ Mode changed: '${prevMode}' ➜ '${mode}'`, threadID, messageID);
+            }
         } else {
-            return api.sendMessage("❌ Unknown mode! Available modes: roast, romantic, bestie, sad, philosopher, poetry", threadID, messageID);
+            return api.sendMessage("❌ Unknown mode! Available modes: roast, romantic, bestie, sad, philosopher, poetry, classical_urdu_roast", threadID, messageID);
         }
     }
 
