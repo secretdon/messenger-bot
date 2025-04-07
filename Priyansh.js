@@ -135,50 +135,78 @@ catch { return logger.loader(global.getText("priyansh", "notFoundPathAppstate"),
 
 function onBot({ models: botModel }) {
     const loginData = {};
-    loginData['appState'] = appState;
-    login(loginData, async(loginError, loginApiData) => {
-        if (loginError) return logger(JSON.stringify(loginError), `ERROR`);
-        loginApiData.setOptions(global.config.FCAOption)
-        writeFileSync(appStateFile, JSON.stringify(loginApiData.getAppState(), null, '\x09'))
-        global.client.api = loginApiData
-        global.config.version = '1.2.14'
-        global.client.timeStart = new Date().getTime(),
-            function () {
-                const listCommand = readdirSync(global.client.mainPath + '/Priyansh/commands').filter(command => command.endsWith('.js') && !command.includes('example') && !global.config.commandDisabled.includes(command));
-                for (const command of listCommand) {
-                    try {
-                        var module = require(global.client.mainPath + '/Priyansh/commands/' + command);
-                        if (!module.config || !module.run || !module.config.commandCategory) throw new Error(global.getText('priyansh', 'errorFormat'));
-                        if (global.client.commands.has(module.config.name || '')) throw new Error(global.getText('priyansh', 'nameExist'));
-                        if (!module.languages || typeof module.languages != 'object' || Object.keys(module.languages).length == 0) logger.loader(global.getText('priyansh', 'notFoundLanguage', module.config.name), 'warn');
-                        if (module.config.dependencies && typeof module.config.dependencies == 'object') {
-                            for (const reqDependencies in module.config.dependencies) {
-                                const reqDependenciesPath = join(__dirname, 'nodemodules', 'node_modules', reqDependencies);
-                                try {
-                                    if (!global.nodemodule.hasOwnProperty(reqDependencies)) {
-                                        if (listPackage.hasOwnProperty(reqDependencies) || listbuiltinModules.includes(reqDependencies)) global.nodemodule[reqDependencies] = require(reqDependencies);
-                                        else global.nodemodule[reqDependencies] = require(reqDependenciesPath);
-                                    } else '';
-                                } catch {
-                                    var check = false;
-                                    var isError;
-                                    logger.loader(global.getText('priyansh', 'notFoundPackage', reqDependencies, module.config.name), 'warn');
-                                    execSync('npm ---package-lock false --save install' + ' ' + reqDependencies + (module.config.dependencies[reqDependencies] == '*' || module.config.dependencies[reqDependencies] == '' ? '' : '@' + module.config.dependencies[reqDependencies]), { 'stdio': 'inherit', 'env': process['env'], 'shell': true, 'cwd': join(__dirname, 'nodemodules') });
-                                    for (let i = 1; i <= 3; i++) {
-                                        try {
-                                            require['cache'] = {};
-                                            if (listPackage.hasOwnProperty(reqDependencies) || listbuiltinModules.includes(reqDependencies)) global['nodemodule'][reqDependencies] = require(reqDependencies);
-                                            else global['nodemodule'][reqDependencies] = require(reqDependenciesPath);
-                                            check = true;
-                                            break;
-                                        } catch (error) { isError = error; }
-                                        if (check || !isError) break;
-                                    }
-                                    if (!check || isError) throw global.getText('priyansh', 'cantInstallPackage', reqDependencies, module.config.name, isError);
+loginData['appState'] = appState;
+
+login(loginData, async (loginError, loginApiData) => {
+    if (loginError) {
+        return logger(JSON.stringify(loginError), `ERROR`);
+    }
+
+    loginApiData.setOptions(global.config.FCAOption);
+    writeFileSync(appStateFile, JSON.stringify(loginApiData.getAppState(), null, '\x09'));
+    global.client.api = loginApiData;
+    global.config.version = '1.2.14';
+    global.client.timeStart = new Date().getTime();
+
+    // Add message listener and log event body
+    global.client.api.listen((event) => {
+        if (event && event.body) {
+            // Log the message body
+            console.log("Message received: ", event.body);
+            logger(`Message received from ID: ${event.senderID}`, 'INFO');
+        }
+    });
+
+    function () {
+        const listCommand = readdirSync(global.client.mainPath + '/Priyansh/commands')
+            .filter(command => command.endsWith('.js') && !command.includes('example') && !global.config.commandDisabled.includes(command));
+        
+        for (const command of listCommand) {
+            try {
+                var module = require(global.client.mainPath + '/Priyansh/commands/' + command);
+                if (!module.config || !module.run || !module.config.commandCategory) throw new Error(global.getText('priyansh', 'errorFormat'));
+                if (global.client.commands.has(module.config.name || '')) throw new Error(global.getText('priyansh', 'nameExist'));
+                if (!module.languages || typeof module.languages != 'object' || Object.keys(module.languages).length == 0) {
+                    logger.loader(global.getText('priyansh', 'notFoundLanguage', module.config.name), 'warn');
+                }
+                if (module.config.dependencies && typeof module.config.dependencies == 'object') {
+                    for (const reqDependencies in module.config.dependencies) {
+                        const reqDependenciesPath = join(__dirname, 'nodemodules', 'node_modules', reqDependencies);
+                        try {
+                            if (!global.nodemodule.hasOwnProperty(reqDependencies)) {
+                                if (listPackage.hasOwnProperty(reqDependencies) || listbuiltinModules.includes(reqDependencies)) {
+                                    global.nodemodule[reqDependencies] = require(reqDependencies);
+                                } else {
+                                    global.nodemodule[reqDependencies] = require(reqDependenciesPath);
                                 }
                             }
-                            logger.loader(global.getText('priyansh', 'loadedPackage', module.config.name));
+                        } catch {
+                            var check = false;
+                            var isError;
+                            logger.loader(global.getText('priyansh', 'notFoundPackage', reqDependencies, module.config.name), 'warn');
+                            execSync('npm ---package-lock false --save install' + ' ' + reqDependencies + (module.config.dependencies[reqDependencies] == '*' || module.config.dependencies[reqDependencies] == '' ? '' : '@' + module.config.dependencies[reqDependencies]), { 'stdio': 'inherit', 'env': process['env'], 'shell': true, 'cwd': join(__dirname, 'nodemodules') });
+                            for (let i = 1; i <= 3; i++) {
+                                try {
+                                    require['cache'] = {};
+                                    if (listPackage.hasOwnProperty(reqDependencies) || listbuiltinModules.includes(reqDependencies)) {
+                                        global['nodemodule'][reqDependencies] = require(reqDependencies);
+                                    } else {
+                                        global['nodemodule'][reqDependencies] = require(reqDependenciesPath);
+                                    }
+                                    check = true;
+                                    break;
+                                } catch (error) { isError = error; }
+                                if (check || !isError) break;
+                            }
+                            if (!check || isError) throw global.getText('priyansh', 'cantInstallPackage', reqDependencies, module.config.name, isError);
                         }
+                    }
+                    logger.loader(global.getText('priyansh', 'loadedPackage', module.config.name));
+                }
+            }
+        }
+    }
+});
                         if (module.config.envConfig) try {
                             for (const envConfig in module.config.envConfig) {
                                 if (typeof global.configModule[module.config.name] == 'undefined') global.configModule[module.config.name] = {};
