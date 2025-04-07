@@ -2,7 +2,7 @@ const axios = require("axios");
 
 // Conversation history & modes for each thread
 const conversationHistory = {};
-const threadModes = {}; // e.g. { 123456789: "romantic" }
+const threadModes = {}; // e.g. { 123456789: "roast" }
 
 // Define prompts for different modes
 const modePrompts = {
@@ -64,9 +64,7 @@ module.exports.run = async function ({ api, event, args, Users }) {
     const activeMode = threadModes[threadID] || "roast";
     const selectedPrompt = modePrompts[activeMode];
 
-    const geminiApiKey = "AIzaSyBLJasBu3OUFEzFlVI-E1l1O0GXvbk1cxA";
-    const geminiApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiApiKey}`;
-
+    // Reset conversation history for the thread if it doesn't exist
     if (!conversationHistory[threadID]) {
         conversationHistory[threadID] = [];
     }
@@ -80,7 +78,7 @@ module.exports.run = async function ({ api, event, args, Users }) {
     if (previousConversation.length > 5) previousConversation.shift();
 
     try {
-        const response = await axios.post(geminiApiUrl, {
+        const response = await axios.post(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyBLJasBu3OUFEzFlVI-E1l1O0GXvbk1cxA`, {
             contents: previousConversation
         }, {
             headers: { "Content-Type": "application/json" }
