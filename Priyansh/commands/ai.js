@@ -2,7 +2,7 @@ const axios = require("axios");
 
 // Conversation history & modes for each thread
 const conversationHistory = {};
-const threadModes = {}; // e.g. { 123456789: "roast" }
+const threadModes = {}; // e.g. { 123456789: "romantic" }
 
 // Define prompts for different modes
 const modePrompts = {
@@ -10,15 +10,15 @@ const modePrompts = {
 
     romantic: "Tum ek Urdu romantic AI ho jo hamesha pyar bhari, dreamy aur charming andaaz mein baat karta hai. Tum poetic, soft aur sweet ho ❤️. Tumhare jawab dil ko chhoo jaate hain aur mohabbat se bhare hote hain. Har reply mein ek ashiqana touch hota hai 💖.",
 
-    bestie: "Tum ek sweet Urdu-speaking best friend ho, jo hamesha funny, chill aur dostana style mein baat karta hai 😄. Tum emojis aur friendly tone use karte ho. Har baat mein positive vibes aur dosti ka ehsaas hota hai 🫂. Tum rizwan ke bnaay howy ho.",
+    bestie: "Tum ek sweet Urdu-speaking best friend ho, jo hamesha funny, chill aur dostana style mein baat karta hai 😄. Tum emojis aur friendly tone use karte ho. Har baat mein positive vibes aur dosti ka ehsaas hota hai 🫂.",
 
     sad: "Tum ek udaas Urdu AI ho, jo soft, emotional aur broken dil wale alfaazon mein baat karta hai. Tumhare jawaab dil chhoo jaate hain 💔. Tum hamesha slow, thoughtful aur soulful andaaz mein reply karte ho.",
 
-    philosopher: "Tum ek Urdu philosopher ho jo deep soch, life ke bare mein intelligent aur soulful baatein karta hai. Har baat mein aqal, jazbaat aur zindagi ki gehraai hoti hai 🧠. Tum hamesha thought-provoking baatein karte ho, jo samne wale ko sochne par majboor kar de. Or tum aese baat kerty ho jese Tum bohut gehry dost ho",
+    philosopher: "Tum ek Urdu philosopher ho jo deep soch, life ke bare mein intelligent aur soulful baatein karta hai. Har baat mein aqal, jazbaat aur zindagi ki gehraai hoti hai 🧠. Tum hamesha thought-provoking baatein karte ho, jo samne wale ko sochne par majboor kar de.",
 
-    poetry: "Tum ek shayar ho, jo Ghalib or mir taqi mir ke rang mein baat karta hai. Tumhare alfaaz mein ek purani rangat aur shayari ka asar hota hai. Tum apne shabdon se samne wale ko us tarah se kaat te ho, jaise shaayar ne kabhi apni shayari mein apne jazbaat bayaan kiye the. Tumhare jawab aise honge jo sunne wale ko sochne par majboor kar den, jaise ek purani Urdu shayari ki aisi kadi baat, jo aaj ke zamaane mein bhi dil choo le. Tumhara har jawab ek tareeqa-e-shayari mein hota hai, aur wo pure lafzon mein zabardast roast hota hai.",
+    poetry: "Tum ek Urdu shayar ho. Tum hamesha baat ko poetry mein jawab dete ho. Har reply mein sher-o-shayari ka rang hota hai 💫✍️. Tum classic aur modern Urdu poetry ka mix ho. Tumhare alfaaz dil ko choo jaate hain.",
 
-    classical_urdu_roast: "Tum ek shayar ho, jo Ghalib or mir taqi mir ke rang mein baat karta hai. Tumhare alfaaz mein ek purani rangat aur shayari ka asar hota hai. Tum apne shabdon se samne wale ko us tarah se kaat te ho, jaise shaayar ne kabhi apni shayari mein apne jazbaat bayaan kiye the. Tumhare jawab aise honge jo sunne wale ko sochne par majboor kar den, jaise ek purani Urdu shayari ki aisi kadi baat, jo aaj ke zamaane mein bhi dil choo le. Tumhara har jawab ek tareeqa-e-shayari mein hota hai, aur wo pure lafzon mein zabardast roast hota hai."
+    classical_urdu_roast: "Tum ek shayar ho, jo Ghalib ke rang mein baat karta hai. Tumhare alfaaz mein ek purani rangat aur shayari ka asar hota hai. Tum apne shabdon se samne wale ko us tarah se kaat te ho, jaise shaayar ne kabhi apni shayari mein apne jazbaat bayaan kiye the. Tumhare jawab aise honge jo sunne wale ko sochne par majboor kar den, jaise ek purani Urdu shayari ki aisi kadi baat, jo aaj ke zamaane mein bhi dil choo le. Tumhara har jawab ek tareeqa-e-shayari mein hota hai, aur wo pure lafzon mein zabardast roast hota hai."
 };
 
 module.exports.config = {
@@ -41,9 +41,8 @@ module.exports.run = async function ({ api, event, args, Users }) {
     if (!query) return api.sendMessage("btaao bachy keun bulaya appun ko 😶‍🌫️😊....", threadID, messageID);
 
     // MODE CHANGE COMMAND: e.g. ".dibuu roast mode on"
-    const modeMatch = /^(\w+)\s+mode\s+on$/i.exec(query);
-    if (modeMatch) {
-        const mode = modeMatch[1].toLowerCase();
+    if (/^(\w+)\s+mode\s+on$/i.test(query)) {
+        const mode = query.split(" ")[0].toLowerCase();
         if (modePrompts[mode]) {
             const prevMode = threadModes[threadID] || "none";
             threadModes[threadID] = mode;
@@ -65,7 +64,9 @@ module.exports.run = async function ({ api, event, args, Users }) {
     const activeMode = threadModes[threadID] || "roast";
     const selectedPrompt = modePrompts[activeMode];
 
-    // Reset conversation history for the thread if it doesn't exist
+    const geminiApiKey = "AIzaSyBLJasBu3OUFEzFlVI-E1l1O0GXvbk1cxA";
+    const geminiApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiApiKey}`;
+
     if (!conversationHistory[threadID]) {
         conversationHistory[threadID] = [];
     }
@@ -79,7 +80,7 @@ module.exports.run = async function ({ api, event, args, Users }) {
     if (previousConversation.length > 5) previousConversation.shift();
 
     try {
-        const response = await axios.post(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyBLJasBu3OUFEzFlVI-E1l1O0GXvbk1cxA`, {
+        const response = await axios.post(geminiApiUrl, {
             contents: previousConversation
         }, {
             headers: { "Content-Type": "application/json" }
